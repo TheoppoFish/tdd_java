@@ -1,29 +1,30 @@
-import java.awt.*;
+import jakarta.inject.Provider;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AppContainer {
 
-    private final Map<Class<?>, Object> containerMap = new HashMap<>();
-    private final Map<Class<?>, Class<?>> containerMap1 = new HashMap<>();
+    private final Map<Class<?>, Provider> provider = new HashMap<>();
 
-    public <Component> Component get(Class<Component> componentClass) {
-        if (containerMap.containsKey(componentClass)) {
-            return (Component) containerMap.get(componentClass);
-        }
-        try {
-            return (Component) containerMap1.get(componentClass).getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+    public <T> T get(Class<T> componentClass) {
+       return (T) provider.get(componentClass).get();
     }
 
-    public <Component> void bind(Class<Component> componentClass, Component instance) {
-        containerMap.put(componentClass, instance);
+    public <T> void bind(Class<T> componentClass, T instance) {
+        provider.put(componentClass, () -> instance);
     }
 
-    public <S,T extends S> void bind(Class<S> componentClass, Class<T> componentWithConstructorClass) {
-        containerMap1.put(componentClass, componentWithConstructorClass);
+    public <S, T extends S> void bind(Class<S> componentClass, Class<T> componentWithConstructorClass) {
+        provider.put(componentClass, () -> {
+                    try {
+                        return componentWithConstructorClass.getDeclaredConstructor().newInstance();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
     }
 }
