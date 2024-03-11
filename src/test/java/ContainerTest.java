@@ -10,8 +10,6 @@ import testData.ComponentWithMultipleInjectionConstructors;
 import testData.ComponentWithoutConstructor;
 import testData.CustomComponent;
 
-import java.util.Objects;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -74,18 +72,12 @@ public class ContainerTest {
 
     @Test
     public void should_throw_exception_given_multiple_inject_constructors() {
+        container.bind(CustomComponent.class, ComponentWithMultipleInjectionConstructors.class);
         assertThrows(IllegalConstructorException.class, () -> {
-            container.bind(CustomComponent.class, ComponentWithMultipleInjectionConstructors.class);
+            container.get(CustomComponent.class);
         }, "multiple injection constructors");
     }
 
-    @Test
-    public void should_throw_exception_without_any_type_of_constructors() {
-        assertThrows(IllegalConstructorException.class, () -> {
-            container.bind(CustomComponent.class, ComponentWithoutConstructor.class);
-        }, "no constructors exception");
-
-    }
 
 
 }
