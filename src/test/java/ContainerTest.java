@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContainerTest {
 
-    private AppContainer container = new AppContainer();
+    private final AppContainer container = new AppContainer();
 
     @Test
     public void should_bind_type_to_class() {
