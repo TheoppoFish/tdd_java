@@ -1,20 +1,31 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import testData.ComponentController;
 import testData.ComponentRepository;
 import testData.ComponentService;
 import testData.ComponentServiceInjection;
 import testData.ComponentWithDefaultConstructor;
-import testData.CustomComponent;
 import testData.ComponentWithDependency;
+import testData.ComponentWithMultipleInjectionConstructors;
+import testData.ComponentWithoutConstructor;
+import testData.CustomComponent;
+
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class ContainerTest {
 
-    private final AppContainer container = new AppContainer();
+    private AppContainer container;
+
+    @BeforeEach
+    public void setUp() {
+        container = new AppContainer();
+    }
 
     @Test
     public void should_bind_type_to_class() {
@@ -59,6 +70,21 @@ public class ContainerTest {
         assertNotNull(result);
         assertTrue(injection instanceof ComponentService);
         assertTrue(injection.getInjection() instanceof ComponentRepository);
+    }
+
+    @Test
+    public void should_throw_exception_given_multiple_inject_constructors() {
+        assertThrows(IllegalConstructorException.class, () -> {
+            container.bind(CustomComponent.class, ComponentWithMultipleInjectionConstructors.class);
+        }, "multiple injection constructors");
+    }
+
+    @Test
+    public void should_throw_exception_without_any_type_of_constructors() {
+        assertThrows(IllegalConstructorException.class, () -> {
+            container.bind(CustomComponent.class, ComponentWithoutConstructor.class);
+        }, "no constructors exception");
+
     }
 
 
