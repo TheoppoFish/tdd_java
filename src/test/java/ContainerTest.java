@@ -1,54 +1,36 @@
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import testData.ComponentServiceInjection;
+import testData.ComponentWithDefaultConstructor;
+import testData.CustomComponent;
+import testData.ComponentWithDependency;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
-interface Component {}
-
-class ComponentWithConstructor implements Component{
-}
-
-class ComponentWithDependencies implements Component {
-
-    private final ComponentServiceInjection injectedDependency;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 
-
-    @Inject
-    public ComponentWithDependencies(ComponentServiceInjection componentServiceInjection){
-        this.injectedDependency = componentServiceInjection;
-    }
-
-    public ComponentServiceInjection getInjection() {
-        return injectedDependency;
-    }
-}
-
-class ComponentServiceInjection {
-}
 
 
 public class ContainerTest {
     @Test
     public void should_bind_type_to_class (){
         AppContainer context = new AppContainer();
-        Component instance = new Component() {
+        CustomComponent instance = new CustomComponent() {
         };
-        context.bind(Component.class , instance);
-        assertSame(context.get(Component.class), instance) ;
+        context.bind(CustomComponent.class , instance);
+        assertSame(context.get(CustomComponent.class), instance) ;
     }
 
     @Test
     public void should_bind_no_args_constructor (){
         AppContainer appContainer = new AppContainer();
 
-        appContainer.bind(Component.class, ComponentWithConstructor.class);
-        Component result = appContainer.get(Component.class);
+        appContainer.bind(CustomComponent.class, ComponentWithDefaultConstructor.class);
+        CustomComponent result = appContainer.get(CustomComponent.class);
 
         assertNotNull(result);
-        assertTrue(result instanceof ComponentWithConstructor);
+        assertTrue(result instanceof ComponentWithDefaultConstructor);
 
     }
 
@@ -59,8 +41,8 @@ public class ContainerTest {
 
 
         container.bind(ComponentServiceInjection.class, new ComponentServiceInjection() );
-        container.bind(Component.class, ComponentWithDependencies.class );
-        ComponentWithDependencies result = (ComponentWithDependencies) container.get(Component.class);
+        container.bind(CustomComponent.class, ComponentWithDependency.class );
+        ComponentWithDependency result = (ComponentWithDependency) container.get(CustomComponent.class);
 
         assertNotNull(result);
         assertTrue(result.getInjection() instanceof ComponentServiceInjection);
