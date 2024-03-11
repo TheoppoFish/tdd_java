@@ -1,18 +1,19 @@
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AppContainer {
 
     private final Map<Class<?>, Provider> provider = new HashMap<>();
 
     public <T> T get(Class<T> componentClass) {
-       return (T) provider.get(componentClass).get();
+        return (T) provider.get(componentClass).get();
     }
 
     public <T> void bind(Class<T> componentClass, T instance) {
@@ -23,15 +24,15 @@ public class AppContainer {
         provider.put(componentClass, () -> {
                     try {
                         Constructor<?>[] constructors = componentWithConstructorClass.getConstructors();
-                        Map<Constructor<?>, Object> dependencyMap = new HashMap<>();
                         for (Constructor<?> constructor : constructors) {
                             if (constructor.isAnnotationPresent(Inject.class)) {
                                 Class<?>[] parameterTypes = constructor.getParameterTypes();
-                                for (Class<?> parameterType : parameterTypes) {
-                                    Object injectedInstance = provider.get(parameterType).get();
-                                    dependencyMap.put(constructor, injectedInstance);
+                                Object[] dependencyArray = new Object[parameterTypes.length];
+                                for (int i = 0; i < parameterTypes.length; i++) {
+                                    Object injectedInstance = provider.get(parameterTypes[i]).get();
+                                    dependencyArray[i] = injectedInstance;
                                 }
-                                return constructor.newInstance(dependencyMap.get(constructor));
+                                return constructor.newInstance(dependencyArray);
                             }
 
                         }

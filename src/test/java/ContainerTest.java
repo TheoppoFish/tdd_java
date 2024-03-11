@@ -9,9 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-
-
-
 public class ContainerTest {
     @Test
     public void should_bind_type_to_class (){
