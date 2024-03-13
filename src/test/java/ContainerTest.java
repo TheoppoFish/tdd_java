@@ -7,7 +7,6 @@ import testData.ComponentServiceInjection;
 import testData.ComponentWithDefaultConstructor;
 import testData.ComponentWithDependency;
 import testData.ComponentWithMultipleInjectionConstructors;
-import testData.ComponentWithoutConstructor;
 import testData.CustomComponent;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,12 +71,10 @@ public class ContainerTest {
 
     @Test
     public void should_throw_exception_given_multiple_inject_constructors() {
-        container.bind(CustomComponent.class, ComponentWithMultipleInjectionConstructors.class);
         assertThrows(IllegalConstructorException.class, () -> {
-            container.get(CustomComponent.class);
+            container.bind(CustomComponent.class, ComponentWithMultipleInjectionConstructors.class);
         }, "multiple injection constructors");
     }
-
 
 
 }
