@@ -39,7 +39,7 @@ public class AppContainer {
             try {
                 return targetClass.getDeclaredConstructor();
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
+                throw new IllegalConstructorException("can not found injected constructor annotation");
             }
         });
     }

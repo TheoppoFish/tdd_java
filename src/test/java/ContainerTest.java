@@ -1,13 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import testData.ComponentController;
-import testData.ComponentRepository;
-import testData.ComponentService;
-import testData.ComponentServiceInjection;
-import testData.ComponentWithDefaultConstructor;
-import testData.ComponentWithDependency;
-import testData.ComponentWithMultipleInjectionConstructors;
-import testData.CustomComponent;
+import testData.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -76,5 +69,10 @@ public class ContainerTest {
         }, "multiple injection constructors");
     }
 
-
+    @Test
+    public void should_throw_exception_when_constructor_has_no_inject_annotation() {
+        assertThrows(IllegalConstructorException.class, () -> {
+            container.bind(CustomComponent.class, ComponentWithNoInjectAnnoConstructors.class);
+        }, "can not found injected constructor annotation");
+    }
 }
