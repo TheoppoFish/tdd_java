@@ -2,6 +2,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import testData.*;
 
+import java.util.NoSuchElementException;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -75,4 +77,12 @@ public class ContainerTest {
             container.bind(CustomComponent.class, ComponentWithNoInjectAnnoConstructors.class);
         }, "can not found injected constructor annotation");
     }
+
+    @Test
+    void should_throw_exception_when_can_not_get_type_from_container() {
+        assertThrows(NoSuchElementException.class, ()->{
+            container.get(CustomComponent.class);
+        }, "can not get target from container");
+    }
+
 }

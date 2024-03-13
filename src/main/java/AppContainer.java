@@ -10,12 +10,16 @@ public class AppContainer {
 
     private final Map<Class<?>, Provider> provider = new HashMap<>();
 
-    public <T> T get(Class<T> componentClass) {
-        return (T) provider.get(componentClass).get();
+    public <T> T get(Class<T> target) throws NoSuchElementException {
+        if (!provider.containsKey(target)) {
+            throw new NoSuchElementException("can not get target from container");
+        }
+
+        return (T) provider.get(target).get();
     }
 
-    public <T> void bind(Class<T> componentClass, T instance) {
-        provider.put(componentClass, () -> instance);
+    public <T> void bind(Class<T> bindType, T instance) {
+        provider.put(bindType, () -> instance);
     }
 
     public <S, T extends S> void bind(Class<S> bindType, Class<T> bindTarget) {
