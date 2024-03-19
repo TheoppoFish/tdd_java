@@ -1,8 +1,16 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import testData.*;
+import testData.ComponentController;
+import testData.ComponentRepository;
+import testData.ComponentService;
+import testData.ComponentServiceInjection;
+import testData.ComponentWithDefaultConstructor;
+import testData.ComponentWithDependency;
+import testData.ComponentWithMultipleInjectionConstructors;
+import testData.ComponentWithNoInjectAnnoConstructors;
+import testData.CustomComponent;
 
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -24,14 +32,14 @@ public class ContainerTest {
         CustomComponent instance = new CustomComponent() {
         };
         container.bind(CustomComponent.class, instance);
-        assertSame(container.get(CustomComponent.class), instance);
+        assertSame(container.get(CustomComponent.class).get(), instance);
     }
 
     @Test
     public void should_bind_no_args_constructor() {
 
         container.bind(CustomComponent.class, ComponentWithDefaultConstructor.class);
-        CustomComponent result = container.get(CustomComponent.class);
+        CustomComponent result = container.get(CustomComponent.class).get();
 
         assertNotNull(result);
         assertTrue(result instanceof ComponentWithDefaultConstructor);
@@ -44,7 +52,7 @@ public class ContainerTest {
 
         container.bind(ComponentServiceInjection.class, new ComponentServiceInjection());
         container.bind(CustomComponent.class, ComponentWithDependency.class);
-        ComponentWithDependency result = (ComponentWithDependency) container.get(CustomComponent.class);
+        ComponentWithDependency result = (ComponentWithDependency) container.get(CustomComponent.class).get();
 
         assertNotNull(result);
         assertTrue(result.getInjection() instanceof ComponentServiceInjection);
@@ -56,7 +64,7 @@ public class ContainerTest {
         container.bind(ComponentRepository.class, new ComponentRepository());
         container.bind(ComponentService.class, ComponentService.class);
         container.bind(CustomComponent.class, ComponentController.class);
-        ComponentController result = (ComponentController) container.get(CustomComponent.class);
+        ComponentController result = (ComponentController) container.get(CustomComponent.class).get();
 
         ComponentService injection = result.getInjection();
         assertNotNull(result);
@@ -80,9 +88,8 @@ public class ContainerTest {
 
     @Test
     void should_throw_exception_when_can_not_get_type_from_container() {
-        assertThrows(NoSuchElementException.class, ()->{
-            container.get(CustomComponent.class);
-        }, "can not get target from container");
+            Optional<CustomComponent> result = container.get(CustomComponent.class);
+       assertTrue(result.isEmpty());
     }
 
 }
