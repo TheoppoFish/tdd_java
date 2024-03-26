@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import testData.CyclingDependencyComponentA;
 import testData.ComponentController;
 import testData.ComponentRepository;
 import testData.ComponentService;
@@ -10,6 +11,7 @@ import testData.ComponentWithMultipleInjectionConstructors;
 import testData.ComponentWithNoInjectAnnoConstructors;
 import testData.CustomComponent;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -74,22 +76,36 @@ public class ContainerTest {
 
     @Test
     public void should_throw_exception_given_multiple_inject_constructors() {
-        assertThrows(IllegalConstructorException.class, () -> {
+        IllegalConstructorException exception = assertThrows(IllegalConstructorException.class, () -> {
             container.bind(CustomComponent.class, ComponentWithMultipleInjectionConstructors.class);
-        }, "multiple injection constructors");
+        }, "Multiple injection constructors");
+
+        assertTrue(exception.getMessage().contentEquals("multiple injection constructors"));
     }
 
     @Test
     public void should_throw_exception_when_constructor_has_no_inject_annotation() {
-        assertThrows(IllegalConstructorException.class, () -> {
+        IllegalConstructorException exception = assertThrows(IllegalConstructorException.class, () -> {
             container.bind(CustomComponent.class, ComponentWithNoInjectAnnoConstructors.class);
-        }, "can not found injected constructor annotation");
+        }, "No inject annotation found in constructor");
+
+        assertTrue(exception.getMessage().contentEquals("can not found injected constructor annotation"));
     }
 
     @Test
     void should_throw_exception_when_can_not_get_type_from_container() {
-            Optional<CustomComponent> result = container.get(CustomComponent.class);
-       assertTrue(result.isEmpty());
+        Optional<CustomComponent> result = container.get(CustomComponent.class);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_throw_exception_when_binding_two_classes_depend_on_each_other() {
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
+            container.bind(CustomComponent.class, CyclingDependencyComponentA.class);
+        }, "cycling dependencies detected");
+
+        assertTrue(exception.getMessage().contentEquals("can not get target dependency testData.CyclingDependencyComponentB for testData.CyclingDependencyComponentA from container"));
     }
 
 }

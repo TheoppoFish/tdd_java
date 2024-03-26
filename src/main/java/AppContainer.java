@@ -4,13 +4,12 @@ import jakarta.inject.Provider;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AppContainer {
 
     private final Map<Class<?>, Provider> provider = new HashMap<>();
 
-    public <T> Optional<T> get(Class<T> target) throws NoSuchElementException {
+    public <T> Optional<T> get(Class<T> target) {
         if (!provider.containsKey(target)) {
             return Optional.empty();
         }
@@ -24,9 +23,22 @@ public class AppContainer {
 
     public <S, T extends S> void bind(Class<S> bindType, Class<T> bindTarget) {
         Constructor<?> injectionConstructor = getInjectedConstructor(bindTarget);
+
+        Object[] dependencies = Arrays
+                .stream(injectionConstructor.getParameters())
+                .map(constructorParam -> {
+                    Class<?> dependencyType = constructorParam.getType();
+                    Optional<S> container = (Optional<S>) get(dependencyType);
+                    if (container.isEmpty()) {
+                        throw new NoSuchElementException(String.format("can not get target dependency %s for %s from container", dependencyType.getCanonicalName(), bindTarget.getName()));
+                    }
+                    return container.get();
+                })
+                .toArray(Object[]::new);
+
+
         provider.put(bindType, () -> {
                     try {
-                        Object[] dependencies = Arrays.stream(injectionConstructor.getParameters()).map(parameter -> get(parameter.getType()).orElseThrow(() -> new NoSuchElementException("can not get target from container"))).toArray(Object[]::new);
                         return injectionConstructor.newInstance(dependencies);
                     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                         throw new RuntimeException(e);
